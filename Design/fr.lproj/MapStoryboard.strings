@@ -1,0 +1,6 @@
+
+/* Class = "UILabel"; text = "lblAddress"; ObjectID = "6uD-U4-gx5";*/
+"6uD-U4-gx5.text" = "Adresse inconnue";
+
+/* Class = "UILabel"; text = "lblInstructions"; ObjectID = "g2e-ep-SDY"; */
+"g2e-ep-SDY.text" = "Faites un appui long pour choisir un lieu.";
