@@ -9,22 +9,26 @@
 #import "GeolocPickerPlugin.h"
 #import "MapViewController.h"
 #import "FormsUtils.h"
+#import <Cobalt/PubSub.h>
 
 @implementation GeolocPickerPlugin  
 
-- (void)onMessageFromCobaltController:(CobaltViewController *)viewController andData: (NSDictionary *)message {
+- (void)onMessageFromWebView:(WebViewType)webView
+          inCobaltController:(nonnull CobaltViewController *)viewController
+                  withAction:(nonnull NSString *)action
+                        data:(nullable NSDictionary *)data
+          andCallbackChannel:(nullable NSString *)callbackChannel
+{
     _viewController = viewController;
-    _callback = [message objectForKey:kJSCallback];
+    _callback = callbackChannel;
     
     UIStoryboard *mapStoryboard = [UIStoryboard storyboardWithName:@"MapStoryboard" bundle:[NSBundle mainBundle]];
     UINavigationController *navigationController = [mapStoryboard instantiateInitialViewController];
     MapViewController *mapviewController = navigationController.viewControllers[0];
     mapviewController.delegate = self;
     
-    NSDictionary *data = [message objectForKey:kJSData];
-    NSString *action = [message objectForKey:kJSAction];
     if (action != nil && [action isEqualToString:@"selectLocation"]) {
-        if (data != nil && [message isKindOfClass:[NSDictionary class]]) {
+        if (data != nil) {
             id location = data[@"location"];
             if (location != nil && [location isKindOfClass:[NSString class]]) {
                 CLLocationCoordinate2D coordinate = [FormsUtils parseCoordinates:location];
@@ -51,7 +55,8 @@
                                                                                      coordinate.latitude,
                                                                                      coordinate.longitude],
                                                                        @"address": address} : @{};
-    [_viewController sendCallback:_callback withData:data];
+    [[PubSub sharedInstance] publishMessage:data
+                                  toChannel:_callback];
     
     [_viewController.navigationController dismissViewControllerAnimated:YES
                                                   completion:nil];
